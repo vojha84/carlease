@@ -324,6 +324,7 @@ let server;
 let registrar;
 let credentials;
 let webAppAdminPassword = configFile.config.registrar_password;
+console.log(webAppAdminPassword+"@@@@@@@@@@@@@@@@@@@@@");
 if (process.env.VCAP_SERVICES) {
     console.log('\n[!] VCAP_SERVICES detected');
     port = process.env.PORT;
@@ -434,94 +435,94 @@ function customSetup(){
             console.log('connected');
             eventEmitter.emit('setup', demoStatus);
         });
-        //return startup.enrollRegistrar(chain, configFile.config.registrar_name, webAppAdminPassword)
+        return startup.enrollRegistrar(chain, configFile.config.registrar_name, webAppAdminPassword)
 
        })
-//        .then(function(r) {
-//         registrar = r;
-//         chain.setRegistrar(registrar);
-//         tracing.create('INFO', 'Startup', 'Set registrar');
-//         let users = configFile.config.users;
-//         if (vcapServices || pem) {
-//             users.forEach(function(user){
-//                 user.affiliation = 'group1';
-//             });
-//         }
-//     return startup.enrollUsers(chain, users, registrar);
-// })
-//         .then(function(users) {
-//             tracing.create('INFO', 'Startup', 'All users registered');
-//             users.forEach(function(user) {
-//                 usersToSecurityContext[user.getName()] = new SecurityContext(user);
-//             });
-//         })
-//         .then(function(){
-//             tracing.create('INFO', 'Startup', 'Checking if chaincode is deployed');
-//             return new Promise(function(resolve, reject) {
-//                 fs.readFile('chaincode.txt', 'utf8', function(err, contents) {
-//                     if (err) {
-//                         resolve(false);
-//                     } else {
-//                         resolve(contents);
-//                     }
-//                 });
-//             });
-//         })
-//         .then(function(cc) { //ChaincodeID exists or doesnt
-//             if (cc) {
-//                 chaincodeID = cc;
-//                 let sc = new SecurityContext(usersToSecurityContext.DVLA.getEnrolledMember());
-//                 sc.setChaincodeID(chaincodeID);
-//                 tracing.create('INFO', 'Chaincode error may appear here - Ignore, chaincode has been pinged', '');
-//                 try {
-//                     return startup.pingChaincode(chain, sc);
-//                 } catch(e) {
-//                     //ping didnt work
-//                     return false;
-//                 }
-//             } else {
-//                 return false;
-//             }
-//         })
-//         .then(function(exists) {
-//             if (!exists) {
-//                 let certPath = (vcapServices) ? vcapServices.cert_path : '/certs/peer/cert.pem';
-//                 //chain.getEventHub().connect();
-//                 return startup.deployChaincode(registrar, 'vehicle_code', 'Init', [], certPath);
-//             } else {
-//                 tracing.create('INFO', 'Startup', 'Chaincode already deployed');
-//                 return {'chaincodeID': chaincodeID};
-//             }
-//         })
-//         .then(function(deploy) {
-//             //chain.getEventHub().disconnect();
-//             for (let name in usersToSecurityContext) {
-//                 usersToSecurityContext[name].setChaincodeID(deploy.chaincodeID);
-//             }
-//             tracing.create('INFO', 'Startup', 'Chaincode successfully deployed');
+       .then(function(r) {
+        registrar = r;
+        chain.setRegistrar(registrar);
+        tracing.create('INFO', 'Startup', 'Set registrar');
+        let users = configFile.config.users;
+        if (vcapServices || pem) {
+            users.forEach(function(user){
+                user.affiliation = 'group1';
+            });
+        }
+    return startup.enrollUsers(chain, users, registrar);
+})
+        .then(function(users) {
+            tracing.create('INFO', 'Startup', 'All users registered');
+            users.forEach(function(user) {
+                usersToSecurityContext[user.getName()] = new SecurityContext(user);
+            });
+        })
+        .then(function(){
+            tracing.create('INFO', 'Startup', 'Checking if chaincode is deployed');
+            return new Promise(function(resolve, reject) {
+                fs.readFile('chaincode.txt', 'utf8', function(err, contents) {
+                    if (err) {
+                        resolve(false);
+                    } else {
+                        resolve(contents);
+                    }
+                });
+            });
+        })
+        .then(function(cc) { //ChaincodeID exists or doesnt
+            if (cc) {
+                chaincodeID = cc;
+                let sc = new SecurityContext(usersToSecurityContext.DVLA.getEnrolledMember());
+                sc.setChaincodeID(chaincodeID);
+                tracing.create('INFO', 'Chaincode error may appear here - Ignore, chaincode has been pinged', '');
+                try {
+                    return startup.pingChaincode(chain, sc);
+                } catch(e) {
+                    //ping didnt work
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        })
+        .then(function(exists) {
+            if (!exists) {
+                let certPath = (vcapServices) ? vcapServices.cert_path : '/certs/peer/cert.pem';
+                //chain.getEventHub().connect();
+                return startup.deployChaincode(registrar, 'vehicle_code', 'Init', [], certPath);
+            } else {
+                tracing.create('INFO', 'Startup', 'Chaincode already deployed');
+                return {'chaincodeID': chaincodeID};
+            }
+        })
+        .then(function(deploy) {
+            //chain.getEventHub().disconnect();
+            for (let name in usersToSecurityContext) {
+                usersToSecurityContext[name].setChaincodeID(deploy.chaincodeID);
+            }
+            tracing.create('INFO', 'Startup', 'Chaincode successfully deployed');
 
-//             demoStatus.success = true;
-//             demoStatus.status = 'success';
-//             if (eventEmitter) {
-//                 eventEmitter.emit('setup', demoStatus);
-//             }
-//         })
-//         .then(function() {
-//             // Query the chaincode every 3 minutes
-//             setInterval(function(){
-//                 startup.pingChaincode(chain, usersToSecurityContext.DVLA)
-//                 .then((success) => {
-//                     if (!success){
-//                         setSetupError();
-//                     } else {
-//                         demoStatus.status = 'SUCCESS';
-//                         demoStatus.success = true;
-//                         demoStatus.error = null;
-//                         demoStatus.detailedError = null;
-//                     }
-//                 });
-//             }, 0.5 * 60000);
-//         })
+            demoStatus.success = true;
+            demoStatus.status = 'success';
+            if (eventEmitter) {
+                eventEmitter.emit('setup', demoStatus);
+            }
+        })
+        .then(function() {
+            // Query the chaincode every 3 minutes
+            setInterval(function(){
+                startup.pingChaincode(chain, usersToSecurityContext.DVLA)
+                .then((success) => {
+                    if (!success){
+                        setSetupError();
+                    } else {
+                        demoStatus.status = 'SUCCESS';
+                        demoStatus.success = true;
+                        demoStatus.error = null;
+                        demoStatus.detailedError = null;
+                    }
+                });
+            }, 0.5 * 60000);
+        })
         .catch(function(err) {
             setSetupError(err);
             console.log(err);
