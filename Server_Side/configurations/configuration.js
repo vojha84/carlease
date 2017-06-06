@@ -11,11 +11,11 @@ config.cloudantNoSQLDB = {
             "label": "cloudantNoSQLDB",
             "plan": "Shared",
             "credentials": {
-                "username": "d30d15b5-287a-4907-96f0-49b53d306bb6-bluemix",
-                "password": "4ebe648f8754e6e8b36c7eeabc75310df40b33d7038197d97d090a453d16c959",
-                "host": "d30d15b5-287a-4907-96f0-49b53d306bb6-bluemix.cloudant.com",
-                "port": 443,
-                "url": "https://d30d15b5-287a-4907-96f0-49b53d306bb6-bluemix:4ebe648f8754e6e8b36c7eeabc75310df40b33d7038197d97d090a453d16c959@d30d15b5-287a-4907-96f0-49b53d306bb6-bluemix.cloudant.com"
+              "username": "f3a5d191-4e19-4365-a484-aa858798f092-bluemix",
+              "password": "8721255b9c6ad05d1005aa80686008bc40b7f595f0c19cdfcb4c35f6849d20b4",
+              "host": "f3a5d191-4e19-4365-a484-aa858798f092-bluemix.cloudant.com",
+              "port": 443,
+              "url": "https://f3a5d191-4e19-4365-a484-aa858798f092-bluemix:8721255b9c6ad05d1005aa80686008bc40b7f595f0c19cdfcb4c35f6849d20b4@f3a5d191-4e19-4365-a484-aa858798f092-bluemix.cloudant.com"
             }
         }
 
