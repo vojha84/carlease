@@ -17,6 +17,7 @@ var constants = require(__dirname+'/../../constants/constants.js');
 var datastore = require(__dirname+'/../../database/datastore.js');
 
 
+
 var dbName;
 var dbInstance;
 
@@ -25,7 +26,7 @@ var dbInstance;
 class CloudantKeyValStore{
 
 	constructor(dbName, dbInstance){
-		logHelper.logEntryAndInput(logger, 'CloudantKeyValStore', dbName);
+		logHelper.logMethodEntry('CloudantKeyValStore');
 		if(!validate.isValidString(dbName)){
 			logHelper.logError(logger, 'KeyValueStoreModel', 'dbName is invalid');
 			throw new Error('Could not create KeyValueStoreModel. dbName is invalid');
@@ -51,7 +52,6 @@ class CloudantKeyValStore{
 		try{
 			this.get({id: name})
 			.then(function(resp){
-				console.log(resp);
 				var body = resp.body;
 				var retValue = null;
 				if(validate.isValidJson(body)){
@@ -78,7 +78,6 @@ class CloudantKeyValStore{
 			
 			this.create({id:name, data:value})
 			.then(function(resp){
-				console.log(resp);
 				return callback(null, resp.body);
 			})
 			.catch(function(err){
@@ -175,34 +174,29 @@ create(params){
 
 			var data = JSON.parse(dataStr);
 			var insert = Promise.promisify(keyValueStoreObject.dbInstance.insert);
-			var fn;
-
-			console.log(data);
+			var isUpdate = false;
+			
 			keyValueStoreObject.get({id: id, executeRegular: true})
 			.then(function(resp){
 				//update
 				var oldDoc = resp.body;
-				console.log("OLDDDDDDDDD")
-				console.log(oldDoc)
 				data['_id'] = oldDoc['_id']
 				data['_rev'] = oldDoc['_rev'];
-				fn = insert(data);
+				isUpdate = true;
 
 			}, function(err){
 				//insert
 				var lastModified = new Date();
 				_.extend(data, {type: constants.MODEL_KEYVALUESTORE, lmd: lastModified});
-				fn = insert(data, id);
 			})
-			
-			
-
-			/*TODO: Schema validation should be done to ensure mandatory fields are included and all fields have
-			expected data types*/
-
-			
-
-			fn
+			.then(function(resp){
+				if(isUpdate == true){
+					return insert(data);
+				}
+				else{
+					return insert(data, id);
+				}
+			})
 			.then(function(resp){
 				logHelper.logMessage(logger, 'create', 'member file successfully created');
 				return resolve({statusCode: constants.SUCCESS, body: data })
@@ -211,6 +205,12 @@ create(params){
 				logHelper.logError(logger, 'create', 'member file creation failed',err);
 				return reject({statusCode: constants.INTERNAL_SERVER_ERROR, body: 'member file creation failed'});
 			});
+			
+			
+
+			/*TODO: Schema validation should be done to ensure mandatory fields are included and all fields have
+			expected data types*/
+			
 
 		}
 		catch(error){
